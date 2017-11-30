@@ -2,6 +2,16 @@
 
 import requests
 import json
+import argparse
+
+
+def parse_args(args=None):
+    parser = argparse.ArgumentParser(description="Market statistics for cryptocurrencies.")
+    parser.add_argument("coin_id", type=str, nargs='?', help="Provide coin name for individual coin stats.")
+
+    if args:
+        return parser.parse_args(args)
+    return parser.parse_args()
 
 
 def leaderboard():
@@ -29,8 +39,8 @@ def leaderboard():
         print(raw % data)
 
 
-def individual_stat(_id):
-    url = "https://api.coinmarketcap.com/v1/ticker/%s/" %_id
+def individual_stats(coin_id):
+    url = "https://api.coinmarketcap.com/v1/ticker/%s/" % coin_id
     request = requests.get(url)
     
     if request.status_code != 200:
@@ -48,5 +58,12 @@ def individual_stat(_id):
         print('%-10s : %s' % ('7d % chg', i['percent_change_7d']))
 
 
+def main(args):
+    if args.coin_id:
+        individual_stats(args.coin_id)
+    else:
+        leaderboard()
+
+
 if __name__ == "__main__":
-    individual_stat("bitcoin")
+    main(parse_args())
