@@ -5,6 +5,12 @@ import json
 import argparse
 
 
+RED    = "\033[1;31m"  
+GREEN  = "\033[0;32m"
+NORMAL = "\033[0;0m"
+BOLD   = "\033[;1m"
+
+
 def parse_args(args=None):
     parser = argparse.ArgumentParser(description="Market statistics for cryptocurrencies.")
     parser.add_argument("coin_id", type=str, nargs='?', help="Provide coin name for individual coin stats.")
@@ -12,6 +18,14 @@ def parse_args(args=None):
     if args:
         return parser.parse_args(args)
     return parser.parse_args()
+
+
+def color_value(value):
+    color = NORMAL
+    if value > 0: color = GREEN
+    if value < 0: color = RED
+
+    return color, value, NORMAL
 
 
 def leaderboard():
@@ -22,8 +36,8 @@ def leaderboard():
         print("Somethings wrong. Turn on the bat signal.")
         exit()
     
-    header = ('Name', 'Symbol', 'Price(USD)', '1h % chg', '24h % chg', '7d % chg')
-    print('| %-20s | %-6s | %-10s | %-8s | %-9s | %-8s |' % header)
+    header = (BOLD, 'Name', 'Symbol', 'Price(USD)', '1h % chg', '24h % chg', '7d % chg', NORMAL,)
+    print('%s| %-20s | %-6s | %-10s | %-8s | %-9s | %-8s |%s' % header)
     
     content = request.content.decode()
     for i in json.loads(str(content)):
@@ -31,11 +45,11 @@ def leaderboard():
             i['name'],
             i['symbol'],
             float(i['price_usd']),
-            float(i['percent_change_1h']),
-            float(i['percent_change_24h']),
-            float(i['percent_change_7d']),
+            *color_value(float(i['percent_change_1h'])),
+            *color_value(float(i['percent_change_24h'])),
+            *color_value(float(i['percent_change_7d'])),
         )
-        raw = '| %-20s | %-6s | %10.2f | %8.2f | %9.2f | %8.2f |'
+        raw = '| %-20s | %-6s | %10.2f | %s%8.2f%s | %s%9.2f%s | %s%8.2f%s |'
         print(raw % data)
 
 
@@ -49,13 +63,13 @@ def individual_stats(coin_id):
     
     content = request.content.decode()
     for i in json.loads(str(content)):
-        print('%-10s : %s' % ('Name', i['name']))
+        print('%-10s : %s%s%s' % ('Name', BOLD, i['name'], NORMAL))
         print('%-10s : %s' % ('Symbol', i['symbol']))
         print('%-10s : %s' % ('Rank', i['rank']))
         print('%-10s : %s' % ('Price(USD)', i['price_usd']))
-        print('%-10s : %s' % ('1h % chg', i['percent_change_1h']))
-        print('%-10s : %s' % ('24h % chg', i['percent_change_24h']))
-        print('%-10s : %s' % ('7d % chg', i['percent_change_7d']))
+        print('%-10s : %s%f%s' % ('1h % chg', *color_value(float(i['percent_change_1h']))))
+        print('%-10s : %s%f%s' % ('24h % chg', *color_value(float(i['percent_change_24h']))))
+        print('%-10s : %s%f%s' % ('7d % chg', *color_value(float(i['percent_change_7d']))))
 
 
 def main(args):
