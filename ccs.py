@@ -7,6 +7,7 @@ import argparse
 
 RED    = "\033[1;31m"  
 GREEN  = "\033[0;32m"
+YELLOW = "\033[0;33m"
 NORMAL = "\033[0;0m"
 BOLD   = "\033[;1m"
 
@@ -36,7 +37,7 @@ def color_value(value):
 
 def check(request):
     if request.status_code != 200:
-        print("Something went wrong. Turn on the bat signal.")
+        print("%sSomething went wrong. Turn on the bat signal.%s" % (YELLOW, NORMAL))
         exit()
 
 
@@ -96,6 +97,8 @@ def main(args):
         if args.daily_sort:  sort_key = 7
         if args.weekly_sort: sort_key = 10
         leaderboard(sort_key)
+    
+    print()
 
 
 if __name__ == "__main__":
