@@ -28,16 +28,19 @@ def color_value(value):
     return color, value, NORMAL
 
 
+def check(request):
+    if request.status_code != 200:
+        print("Something went wrong. Turn on the bat signal.")
+        exit()
+
+
 def leaderboard():
     url = "https://api.coinmarketcap.com/v1/ticker/?limit=10"
     request = requests.get(url)
-    
-    if request.status_code != 200:
-        print("Somethings wrong. Turn on the bat signal.")
-        exit()
-    
-    header = (BOLD, 'Name', 'Symbol', 'Price(USD)', '1h % chg', '24h % chg', '7d % chg', NORMAL,)
-    print('%s| %-20s | %-6s | %-10s | %-8s | %-9s | %-8s |%s' % header)
+    check(request)    
+   
+    header = (BOLD, 'Name', 'Symbol', 'Price(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
+    print('%s| %-20s | %-6s | %-10s | %-8s | %-8s | %-8s |%s' % header)
     
     content = request.content.decode()
     for i in json.loads(str(content)):
@@ -49,17 +52,14 @@ def leaderboard():
             *color_value(float(i['percent_change_24h'])),
             *color_value(float(i['percent_change_7d'])),
         )
-        raw = '| %-20s | %-6s | %10.2f | %s%8.2f%s | %s%9.2f%s | %s%8.2f%s |'
+        raw = '| %-20s | %-6s | %10.2f | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
         print(raw % data)
 
 
 def individual_stats(coin_id):
     url = "https://api.coinmarketcap.com/v1/ticker/%s/" % coin_id
     request = requests.get(url)
-    
-    if request.status_code != 200:
-        print("Somethings wrong. Turn on the bat signal.")
-        exit()
+    check(request)    
     
     content = request.content.decode()
     for i in json.loads(str(content)):
@@ -67,12 +67,16 @@ def individual_stats(coin_id):
         print('%-10s : %s' % ('Symbol', i['symbol']))
         print('%-10s : %s' % ('Rank', i['rank']))
         print('%-10s : %s' % ('Price(USD)', i['price_usd']))
-        print('%-10s : %s%f%s' % ('1h % chg', *color_value(float(i['percent_change_1h']))))
-        print('%-10s : %s%f%s' % ('24h % chg', *color_value(float(i['percent_change_24h']))))
-        print('%-10s : %s%f%s' % ('7d % chg', *color_value(float(i['percent_change_7d']))))
+        print('%-10s : %s%f%s' % ('1h % Chg', *color_value(float(i['percent_change_1h']))))
+        print('%-10s : %s%f%s' % ('1d % Chg', *color_value(float(i['percent_change_24h']))))
+        print('%-10s : %s%f%s' % ('7d % Chg', *color_value(float(i['percent_change_7d']))))
 
 
 def main(args):
+    print(BOLD)
+    print("Cryptocurrency Statistics:".upper())
+    print(NORMAL)
+
     if args.coin_id:
         individual_stats(args.coin_id)
     else:
