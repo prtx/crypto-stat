@@ -41,8 +41,8 @@ def check(request):
         exit()
 
 
-def leaderboard(sort_key=None):
-    url = "https://api.coinmarketcap.com/v1/ticker/?limit=10"
+def leaderboard(sort_key=None, limit=10):
+    url = "https://api.coinmarketcap.com/v1/ticker/"
     request = requests.get(url)
     check(request)    
    
@@ -63,7 +63,7 @@ def leaderboard(sort_key=None):
         ))
     
     if sort_key: data.sort(key=lambda x: x[sort_key], reverse=True)
-    for row in data:
+    for row in data[:limit]:
         print(raw_str % row)
 
 
