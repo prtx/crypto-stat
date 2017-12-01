@@ -16,6 +16,7 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser(description="Market statistics for cryptocurrencies.")
     parser.add_argument("coin_id", type=str, nargs='?', help="Provide coin name for individual coin stats.")
     parser.add_argument("-d", "--debug", action="store_true", help="Rub program in debug mode")
+    # parser.add_argument('-c','--compare', nargs='+', help='<Required> Set flag')
     
     sort_group = parser.add_mutually_exclusive_group()
     sort_group.add_argument("-p", "--price-sort", action="store_true", help="Sort by Price(USD)")
@@ -44,18 +45,21 @@ def check(request, debug=False):
         exit()
 
 
-def leaderboard(sort_key=None, debug=False, limit=10):
-    url = "https://api.coinmarketcap.com/v1/ticker/"
+def get_content(url, debug=False):
     if debug: print("URL: %s" % url)
-    
     request = requests.get(url)
     check(request)    
-   
+    return request.content.decode()
+
+
+def leaderboard(sort_key=None, debug=False, limit=10):
+    url = "https://api.coinmarketcap.com/v1/ticker/"
+    content = get_content(url, debug)
+       
     header = (BOLD, 'Name', 'Symbol', 'Price(USD)', 'Market Cap(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
     raw_str = '| %-30s | %-6s | %10.2f | %15s | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
     print('%s| %-30s | %-6s | %-10s | %-15s | %-8s | %-8s | %-8s |%s' % header)
     
-    content = request.content.decode()
     data = []
     for i in json.loads(str(content)):
         data.append((
@@ -75,12 +79,8 @@ def leaderboard(sort_key=None, debug=False, limit=10):
 
 def individual_stats(coin_id, debug=False):
     url = "https://api.coinmarketcap.com/v1/ticker/%s/" % coin_id
-    if debug: print("URL: %s" % url)
+    content = get_content(url, debug)
     
-    request = requests.get(url)
-    check(request, debug)
-    
-    content = request.content.decode()
     for i in json.loads(str(content)):
         print('%-15s : %s%s%s' % ('Name', BOLD, i['name'], NORMAL))
         print('%-15s : %s' % ('Symbol', i['symbol']))
