@@ -29,12 +29,12 @@ def parse_args(args=None):
     return parser.parse_args()
 
 
-def color_value(value):
+def color_value(value1, value2=0):
     color = NORMAL
-    if value > 0: color = GREEN
-    if value < 0: color = RED
+    if value1 > value2: color = GREEN
+    if value1 < value2: color = RED
 
-    return color, value, NORMAL
+    return color, value1, NORMAL
 
 
 def check(request, debug=False):
@@ -96,16 +96,17 @@ def main(args):
     print(BOLD)
     print("Cryptocurrency Statistics:".upper())
     print(NORMAL)
+    
+    sort_key = None
+    if args.price_sort:      sort_key = 2
+    if args.market_cap_sort: sort_key = 3
+    if args.hourly_sort:     sort_key = 5
+    if args.daily_sort:      sort_key = 8
+    if args.weekly_sort:     sort_key = 11
 
     if args.coin_id:
         individual_stats(args.coin_id, args.debug)
     else:
-        sort_key = None
-        if args.price_sort:      sort_key = 2
-        if args.market_cap_sort: sort_key = 3
-        if args.hourly_sort:     sort_key = 5
-        if args.daily_sort:      sort_key = 8
-        if args.weekly_sort:     sort_key = 11
         leaderboard(sort_key, args.debug)
     
     print()
