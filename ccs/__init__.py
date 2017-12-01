@@ -15,6 +15,7 @@ BOLD   = "\033[;1m"
 def parse_args(args=None):
     parser = argparse.ArgumentParser(description="Market statistics for cryptocurrencies.")
     parser.add_argument("coin_id", type=str, nargs='?', help="Provide coin name for individual coin stats.")
+    parser.add_argument("-d", "--debug", action="store_true", help="Rub program in debug mode")
     
     sort_group = parser.add_mutually_exclusive_group()
     sort_group.add_argument("-p", "--price-sort", action="store_true", help="Sort by Price(USD)")
@@ -35,14 +36,17 @@ def color_value(value):
     return color, value, NORMAL
 
 
-def check(request):
+def check(request, debug=False):
+    if debug: print("STATUS: %d" % request.status_code)
     if request.status_code != 200:
         print("%sSomething went wrong. Turn on the bat signal.%s" % (YELLOW, NORMAL))
         exit()
 
 
-def leaderboard(sort_key=None, limit=10):
+def leaderboard(sort_key=None, debug=False, limit=10):
     url = "https://api.coinmarketcap.com/v1/ticker/"
+    if debug: print("URL: %s" % url)
+    
     request = requests.get(url)
     check(request)    
    
@@ -67,10 +71,12 @@ def leaderboard(sort_key=None, limit=10):
         print(raw_str % row)
 
 
-def individual_stats(coin_id):
+def individual_stats(coin_id, debug=False):
     url = "https://api.coinmarketcap.com/v1/ticker/%s/" % coin_id
+    if debug: print("URL: %s" % url)
+    
     request = requests.get(url)
-    check(request)    
+    check(request, debug)
     
     content = request.content.decode()
     for i in json.loads(str(content)):
@@ -89,14 +95,14 @@ def main(args):
     print(NORMAL)
 
     if args.coin_id:
-        individual_stats(args.coin_id)
+        individual_stats(args.coin_id, args.debug)
     else:
         sort_key = None
         if args.price_sort:  sort_key = 2
         if args.hourly_sort: sort_key = 4
         if args.daily_sort:  sort_key = 7
         if args.weekly_sort: sort_key = 10
-        leaderboard(sort_key)
+        leaderboard(sort_key, args.debug)
     
     print()
 
