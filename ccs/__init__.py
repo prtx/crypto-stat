@@ -16,7 +16,7 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser(description="Market statistics for cryptocurrencies.")
     parser.add_argument("coin_id", type=str, nargs='?', help="Provide coin name for individual coin stats.")
     parser.add_argument("-d", "--debug", action="store_true", help="Rub program in debug mode")
-    # parser.add_argument('-c','--compare', nargs='+', help='<Required> Set flag')
+    parser.add_argument('-c','--compare', nargs='+', help='Compare multiple quotes')
     
     sort_group = parser.add_mutually_exclusive_group()
     sort_group.add_argument("-p", "--price-sort", action="store_true", help="Sort by Price(USD)")
@@ -93,6 +93,33 @@ def individual_stats(coin_id, debug=False):
         print('%-15s : %s%f%s' % ('7d % Chg', *color_value(float(i['percent_change_7d']))))
 
 
+def compare_stats(coin_ids, sort_key, debug=False):
+    data = []
+    for coin_id in coin_ids:
+        url = "https://api.coinmarketcap.com/v1/ticker/%s/" % coin_id
+        content = get_content(url, debug)
+    
+        for i in json.loads(str(content)):
+            data.append((
+                i['name'],
+                i['symbol'],
+                int(i['rank']),
+                float(i['price_usd']),
+                float(i['market_cap_usd']),
+                *color_value(float(i['percent_change_1h'])),
+                *color_value(float(i['percent_change_24h'])),
+                *color_value(float(i['percent_change_7d'])),
+            ))
+    
+    header = (BOLD, 'Name', 'Symbol', 'Rank', 'Price(USD)', 'Market Cap(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
+    raw_str = '| %-30s | %-6s | %4d | %10.2f | %15s | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
+    print('%s| %-30s | %-6s | %-4s | %-10s | %-15s | %-8s | %-8s | %-8s |%s' % header)
+
+    if sort_key: data.sort(key=lambda x: x[sort_key], reverse=True)
+    for row in data:
+        print(raw_str % row)
+
+
 def main(args):
     print(BOLD)
     print("Cryptocurrency Statistics:".upper())
@@ -107,6 +134,8 @@ def main(args):
 
     if args.coin_id:
         individual_stats(args.coin_id, args.debug)
+    elif args.compare:
+        compare_stats(args.compare, sort_key, args.debug)
     else:
         leaderboard(sort_key, args.debug)
     
