@@ -19,6 +19,7 @@ def parse_args(args=None):
     
     sort_group = parser.add_mutually_exclusive_group()
     sort_group.add_argument("-p", "--price-sort", action="store_true", help="Sort by Price(USD)")
+    sort_group.add_argument("-mc", "--market-cap-sort", action="store_true", help="Sort by Market Capitalization(USD)")
     sort_group.add_argument("-hr", "--hourly-sort", action="store_true", help="Sort by Hourly %% Change")
     sort_group.add_argument("-day", "--daily_sort", action="store_true", help="Sort by Daily %% Change")
     sort_group.add_argument("-wk", "--weekly-sort", action="store_true", help="Sort by Weekly %% Change")
@@ -50,9 +51,9 @@ def leaderboard(sort_key=None, debug=False, limit=10):
     request = requests.get(url)
     check(request)    
    
-    header = (BOLD, 'Name', 'Symbol', 'Price(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
-    raw_str = '| %-20s | %-6s | %10.2f | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
-    print('%s| %-20s | %-6s | %-10s | %-8s | %-8s | %-8s |%s' % header)
+    header = (BOLD, 'Name', 'Symbol', 'Price(USD)', 'Market Cap(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
+    raw_str = '| %-30s | %-6s | %10.2f | %15s | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
+    print('%s| %-30s | %-6s | %-10s | %-15s | %-8s | %-8s | %-8s |%s' % header)
     
     content = request.content.decode()
     data = []
@@ -61,6 +62,7 @@ def leaderboard(sort_key=None, debug=False, limit=10):
             i['name'],
             i['symbol'],
             float(i['price_usd']),
+            float(i['market_cap_usd']),
             *color_value(float(i['percent_change_1h'])),
             *color_value(float(i['percent_change_24h'])),
             *color_value(float(i['percent_change_7d'])),
@@ -80,13 +82,14 @@ def individual_stats(coin_id, debug=False):
     
     content = request.content.decode()
     for i in json.loads(str(content)):
-        print('%-10s : %s%s%s' % ('Name', BOLD, i['name'], NORMAL))
-        print('%-10s : %s' % ('Symbol', i['symbol']))
-        print('%-10s : %s' % ('Rank', i['rank']))
-        print('%-10s : %s' % ('Price(USD)', i['price_usd']))
-        print('%-10s : %s%f%s' % ('1h % Chg', *color_value(float(i['percent_change_1h']))))
-        print('%-10s : %s%f%s' % ('1d % Chg', *color_value(float(i['percent_change_24h']))))
-        print('%-10s : %s%f%s' % ('7d % Chg', *color_value(float(i['percent_change_7d']))))
+        print('%-15s : %s%s%s' % ('Name', BOLD, i['name'], NORMAL))
+        print('%-15s : %s' % ('Symbol', i['symbol']))
+        print('%-15s : %s' % ('Rank', i['rank']))
+        print('%-15s : %s' % ('Price(USD)', i['price_usd']))
+        print('%-15s : %s' % ('Market Cap(USD)', i['market_cap_usd']))
+        print('%-15s : %s%f%s' % ('1h % Chg', *color_value(float(i['percent_change_1h']))))
+        print('%-15s : %s%f%s' % ('1d % Chg', *color_value(float(i['percent_change_24h']))))
+        print('%-15s : %s%f%s' % ('7d % Chg', *color_value(float(i['percent_change_7d']))))
 
 
 def main(args):
@@ -98,10 +101,11 @@ def main(args):
         individual_stats(args.coin_id, args.debug)
     else:
         sort_key = None
-        if args.price_sort:  sort_key = 2
-        if args.hourly_sort: sort_key = 4
-        if args.daily_sort:  sort_key = 7
-        if args.weekly_sort: sort_key = 10
+        if args.price_sort:      sort_key = 2
+        if args.market_cap_sort: sort_key = 3
+        if args.hourly_sort:     sort_key = 5
+        if args.daily_sort:      sort_key = 8
+        if args.weekly_sort:     sort_key = 11
         leaderboard(sort_key, args.debug)
     
     print()
