@@ -56,15 +56,16 @@ def leaderboard(sort_key=None, debug=False, limit=10):
     url = "https://api.coinmarketcap.com/v1/ticker/"
     content = get_content(url, debug)
        
-    header = (BOLD, 'Name', 'Symbol', 'Price(USD)', 'Market Cap(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
-    raw_str = '| %-30s | %-6s | %10.2f | %15s | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
-    print('%s| %-30s | %-6s | %-10s | %-15s | %-8s | %-8s | %-8s |%s' % header)
+    header = (BOLD, 'Name', 'Symbol', 'Rank', 'Price(USD)', 'Market Cap(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
+    raw_str = '| %-30s | %-6s | %4d | %10.2f | %15s | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
+    print('%s| %-30s | %-6s | %-4s | %-10s | %-15s | %-8s | %-8s | %-8s |%s' % header)
     
     data = []
     for i in json.loads(str(content)):
         data.append((
             i['name'],
             i['symbol'],
+            int(i['rank']),
             float(i['price_usd']),
             float(i['market_cap_usd']),
             *color_value(float(i['percent_change_1h'])),
@@ -98,11 +99,11 @@ def main(args):
     print(NORMAL)
     
     sort_key = None
-    if args.price_sort:      sort_key = 2
-    if args.market_cap_sort: sort_key = 3
+    if args.price_sort:      sort_key = 3
+    if args.market_cap_sort: sort_key = 4
     if args.hourly_sort:     sort_key = 5
-    if args.daily_sort:      sort_key = 8
-    if args.weekly_sort:     sort_key = 11
+    if args.daily_sort:      sort_key = 9
+    if args.weekly_sort:     sort_key = 12
 
     if args.coin_id:
         individual_stats(args.coin_id, args.debug)
