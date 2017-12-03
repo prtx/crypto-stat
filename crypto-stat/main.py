@@ -52,12 +52,22 @@ def get_content(url, debug=False):
     return request.content.decode()
 
 
+def global_stat(debug):
+    url = "https://api.coinmarketcap.com/v1/global/"
+    return json.loads(get_content(url, debug))
+
+
 def leaderboard(sort_key=None, debug=False, limit=10):
     url = "https://api.coinmarketcap.com/v1/ticker/"
     content = get_content(url, debug)
+    global_info = global_stat(debug)
        
     header = (BOLD, 'Name', 'Symbol', 'Rank', 'Price(USD)', 'Market Cap(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
     raw_str = '| %-30s | %-6s | %4d | %10.2f | %15s | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
+    
+    print("%-22s: %s" % ("Total Market Cap(USD)", global_info['total_market_cap_usd']))
+    print("%-22s: %s" % ("24 hr Volume(USD)", global_info['total_24h_volume_usd']))
+    print()
     print('%s| %-30s | %-6s | %-4s | %-10s | %-15s | %-8s | %-8s | %-8s |%s' % header)
     
     data = []
