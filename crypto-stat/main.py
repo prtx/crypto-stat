@@ -72,7 +72,7 @@ def leaderboard(sort_key=None, debug=False, limit=10):
     print('%s| %-30s | %-6s | %-4s | %-10s | %-15s | %-8s | %-8s | %-8s | %-8s |%s' % header)
     
     data = []
-    for i in json.loads(str(content)):
+    for i in json.loads(content):
         data.append((
             i['name'],
             i['symbol'],
@@ -102,9 +102,9 @@ def individual_stats(coin_id, debug=False):
         print('%-15s : %s' % ('Price(USD)', i['price_usd']))
         print('%-15s : %s' % ('Market Cap(USD)', i['market_cap_usd']))
         print('%-15s : %4.2f' % ('Market %', float(i['market_cap_usd'])/float(global_info['total_market_cap_usd'])*100))
-        print('%-15s : %s%f%s' % ('1h % Chg', *color_value(float(i['percent_change_1h']))))
-        print('%-15s : %s%f%s' % ('1d % Chg', *color_value(float(i['percent_change_24h']))))
-        print('%-15s : %s%f%s' % ('7d % Chg', *color_value(float(i['percent_change_7d']))))
+        print('%-15s : %s%4.2f%s' % ('1h % Chg', *color_value(float(i['percent_change_1h']))))
+        print('%-15s : %s%4.2f%s' % ('1d % Chg', *color_value(float(i['percent_change_24h']))))
+        print('%-15s : %s%4.2f%s' % ('7d % Chg', *color_value(float(i['percent_change_7d']))))
 
 
 def compare_stats(coin_ids, sort_key, debug=False):
@@ -113,7 +113,7 @@ def compare_stats(coin_ids, sort_key, debug=False):
         url = "https://api.coinmarketcap.com/v1/ticker/%s/" % coin_id
         content = get_content(url, debug)
     
-        for i in json.loads(str(content)):
+        for i in json.loads(content):
             data.append((
                 i['name'],
                 i['symbol'],
