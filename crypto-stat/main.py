@@ -62,13 +62,14 @@ def leaderboard(sort_key=None, debug=False, limit=10):
     content = get_content(url, debug)
     global_info = global_stat(debug)
        
-    header = (BOLD, 'Name', 'Symbol', 'Rank', 'Price(USD)', 'Market Cap(USD)', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
-    raw_str = '| %-30s | %-6s | %4d | %10.2f | %15s | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
+    header = (BOLD, 'Name', 'Symbol', 'Rank', 'Price(USD)', 'Market Cap(USD)', 'Market %', '1h % Chg', '1d % Chg', '7d % Chg', NORMAL,)
+    raw_str = '| %-30s | %-6s | %4d | %10.2f | %15s | %8.2f | %s%8.2f%s | %s%8.2f%s | %s%8.2f%s |'
     
     print("%-22s: %s" % ("Total Market Cap(USD)", global_info['total_market_cap_usd']))
     print("%-22s: %s" % ("24 hr Volume(USD)", global_info['total_24h_volume_usd']))
     print()
-    print('%s| %-30s | %-6s | %-4s | %-10s | %-15s | %-8s | %-8s | %-8s |%s' % header)
+
+    print('%s| %-30s | %-6s | %-4s | %-10s | %-15s | %-8s | %-8s | %-8s | %-8s |%s' % header)
     
     data = []
     for i in json.loads(str(content)):
@@ -78,6 +79,7 @@ def leaderboard(sort_key=None, debug=False, limit=10):
             int(i['rank']),
             float(i['price_usd']),
             float(i['market_cap_usd']),
+            float(i['market_cap_usd'])/float(global_info['total_market_cap_usd'])*100,
             *color_value(float(i['percent_change_1h'])),
             *color_value(float(i['percent_change_24h'])),
             *color_value(float(i['percent_change_7d'])),
@@ -91,13 +93,15 @@ def leaderboard(sort_key=None, debug=False, limit=10):
 def individual_stats(coin_id, debug=False):
     url = "https://api.coinmarketcap.com/v1/ticker/%s/" % coin_id
     content = get_content(url, debug)
+    global_info = global_stat(debug)
     
-    for i in json.loads(str(content)):
+    for i in json.loads(content):
         print('%-15s : %s%s%s' % ('Name', BOLD, i['name'], NORMAL))
         print('%-15s : %s' % ('Symbol', i['symbol']))
         print('%-15s : %s' % ('Rank', i['rank']))
         print('%-15s : %s' % ('Price(USD)', i['price_usd']))
         print('%-15s : %s' % ('Market Cap(USD)', i['market_cap_usd']))
+        print('%-15s : %4.2f' % ('Market %', float(i['market_cap_usd'])/float(global_info['total_market_cap_usd'])*100))
         print('%-15s : %s%f%s' % ('1h % Chg', *color_value(float(i['percent_change_1h']))))
         print('%-15s : %s%f%s' % ('1d % Chg', *color_value(float(i['percent_change_24h']))))
         print('%-15s : %s%f%s' % ('7d % Chg', *color_value(float(i['percent_change_7d']))))
@@ -138,9 +142,9 @@ def main(args):
     sort_key = None
     if args.price_sort:      sort_key = 3
     if args.market_cap_sort: sort_key = 4
-    if args.hourly_sort:     sort_key = 5
-    if args.daily_sort:      sort_key = 9
-    if args.weekly_sort:     sort_key = 12
+    if args.hourly_sort:     sort_key = 7
+    if args.daily_sort:      sort_key = 10
+    if args.weekly_sort:     sort_key = 13
 
     if args.coin_id:
         individual_stats(args.coin_id, args.debug)
