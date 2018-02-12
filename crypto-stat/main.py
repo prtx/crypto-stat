@@ -80,9 +80,9 @@ def leaderboard(sort_key=None, debug=False, limit=10):
             float(i['price_usd']),
             float(i['market_cap_usd']),
             float(i['market_cap_usd'])/float(global_info['total_market_cap_usd'])*100,
-            *color_value(float(i['percent_change_1h'])),
-            *color_value(float(i['percent_change_24h'])),
-            *color_value(float(i['percent_change_7d'])),
+            *color_value(float(i['percent_change_1h'] or 0)),
+            *color_value(float(i['percent_change_24h'] or 0)),
+            *color_value(float(i['percent_change_7d'] or 0)),
         ))
     
     if sort_key: data.sort(key=lambda x: x[sort_key], reverse=True)
